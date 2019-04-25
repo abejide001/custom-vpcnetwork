@@ -1,0 +1,94 @@
+---
+- hosts: all
+  become: true
+  remote_user: ubuntu
+  vars:
+    NODEJS_VERSION: '10'
+    repo_url: https://github.com/andela/krypton-ah-backend.git
+    project_path: "/home/ubuntu/krypton-ah-backend"
+    PM2_PATH: "$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u
+      ubuntu --hp /home/ubuntu"
+  tasks:
+  - name: Update cache
+    apt:
+      update_cache: true
+  - name: Install the gpg key for nodejs LTS
+    apt_key:
+      url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+      state: present
+  - name: Install the nodejs LTS repos
+    apt_repository:
+      repo: deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release
+        }} main
+      state: present
+      update_cache: true
+  - name: Install the nodejs
+    apt:
+      name: nodejs
+      state: present
+  - name: Clone git repository
+    git:
+      repo: "{{ repo_url }}"
+      dest: "{{ project_path }}"
+      clone: true
+  - name: Set the env vars
+    command: sh configure-env.sh
+  - name: Install application dependencies
+    shell: |
+      sudo apt-get install -y build-essential python
+      npm install node-pre-gyp -ES --unsafe-perm=true
+      npm install -ES --unsafe-perm=true
+    args:
+      chdir: "{{ project_path }}"
+  - name: Install nginx
+    apt:
+      name: nginx
+      state: latest
+  - name: Delete the nginx default file
+    file:
+      path: "/etc/nginx/sites-enabled/default"
+      state: absent
+  - name: Configure nginx server
+    command: |
+        bash -c 'cat > /etc/nginx/sites-available/krypton-ah-backend <<EOF
+          server {
+            listen 80;
+            location / {
+              proxy_pass http://127.0.0.1:6000;
+            }
+        }
+        EOF'
+  - name: Update nginx symlink
+    file:
+      src=/etc/nginx/sites-available/krypton-ah-backend
+      dest=/etc/nginx/sites-enabled/krypton-ah-backend
+      state=link
+  - name: Start nginx
+    service:
+      name: nginx
+      state: started
+  - name: Install process manager 2 globally
+    npm:
+      name: pm2
+      global: true
+  - name: Setup process manager
+    shell: |
+      cd {{ project_path }}
+      echo '
+        {
+          "apps": [
+            {
+              "name": "authors-haven",
+              "script": "npm",
+              "args": "run start"
+            }
+          ]
+        }
+      ' > 'start_script.config.json'
+  - name: Start process manager
+    shell: |
+      cd {{ project_path }}
+      sudo pm2 start ./start_script.config.json
+      sudo pm2 startup
+      sudo env PATH={{PM2_PATH}}
+      sudo pm2 save

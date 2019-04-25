@@ -1,0 +1,6 @@
+vars
+.env
+.terraform.tfstate.lock.info
+terraform.tfstate.backup
+.terraform
+terraform.tfstate
