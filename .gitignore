@@ -4,3 +4,4 @@ vars
 terraform.tfstate.backup
 .terraform
 terraform.tfstate
+configure-env.sh
