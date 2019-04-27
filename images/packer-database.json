@@ -26,6 +26,6 @@
        "script": "install_ansible.sh"
     }, {
         "type": "ansible",
-        "playbook_file": "database_playbook.yml"
+        "playbook_file": "./playbook-files/database_playbook.yml"
     }]
   }
