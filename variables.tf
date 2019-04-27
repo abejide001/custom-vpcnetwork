@@ -14,6 +14,6 @@ variable "private_subnet_cidr" {
 }
 
 variable "key_pair" {
-  description = "key pair for instance"
+  descriptdion = "key pair for instance"
   default     = "demo-packer"
 }

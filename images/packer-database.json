@@ -19,7 +19,7 @@
       },
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
-      "ami_name": "Nodejs3"
+      "ami_name": "database"
     }],
     "provisioners": [{
        "type": "shell",
