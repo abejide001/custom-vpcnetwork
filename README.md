@@ -9,7 +9,7 @@
 - [AWS](aws.amazon.com)
 
 ## Introduction
-This repository automates the creation of VPC(Virtual Private Cloud), a Public and Private subnets. The application API and database reside in a private subnet(not accessible via the internet), the frontend resides in a public subnet(accessible via the internet), as shown in the image above
+This repository automates the creation of VPC(Virtual Private Cloud), a Public and Private subnets, Internet gateway, Route tables e.t.c. The application API and database reside in a private subnet(not accessible via the internet), the frontend resides in a public subnet(accessible via the internet), as shown in the image above
 
 ## How the script works
 There are two packer files, one for database, and the other for the backend api, the packer file for the front-end, can be found in this [repo](https://github.com/abejide001/AWS-EC2-Instance-with-Packer-and-Ansible/tree/use-terraform-for-provisioning)
